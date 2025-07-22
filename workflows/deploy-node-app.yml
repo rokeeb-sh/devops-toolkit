@@ -58,99 +58,99 @@ on:
         type: string
         default: '/var/www/'
 
-    secrets:
-      ssh_key:
-        description: 'Private SSH key with access to the server'
-        required: false
-
+      secrets:
+        ssh_key:
+          description: 'Private SSH key with access to the server'
+          required: false
+  
       ssh_password:
         description: 'Password for SSH login (used if no ssh_key is provided)'
         required: false
-
-jobs:
-  deploy:
-    name: Deploy Node.js App
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: ⬇️ Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: 📦 SCP Upload to Remote Host
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ inputs.server_ip }}
-          username: ${{ inputs.server_user }}
-          key: ${{ secrets.ssh_key }}
-          password: ${{ secrets.ssh_password }}
-          source: "."
-          target: "${{ inputs.remote_dir }}temp/${{ inputs.app }}"
-
-      - name: 🚀 Build & Replace Server Files
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ inputs.server_ip }}
-          username: ${{ inputs.server_user }}
-          key: ${{ secrets.ssh_key }}
-          password: ${{ secrets.ssh_password }}
-          script: |
-            set -e
-            echo "🔍 Checking if .env is required and present..."
-            if [ "${{ inputs.require_env }}" = "true" ] && [ ! -f "${{ inputs.remote_dir }}${{ inputs.app }}/.env" ]; then
-              echo "❌ .env file is required but not found!"
-              exit 1
-            fi
-
-            echo "📦 Copying .env file to temp directory..."
-            cp "${{ inputs.remote_dir }}${{ inputs.app }}/.env" "${{ inputs.remote_dir }}temp/${{ inputs.app }}/"
-
-            echo "📥 Installing dependencies..."
-            cd "${{ inputs.remote_dir }}temp/${{ inputs.app }}"
-            yarn install
-
-            echo "🛠️ Building the project..."
-            yarn build
-
-            # echo "🚀 Starting the server in the background..."
-            # PORT=9999
-            # yarn start -p $PORT &  # Run in background
-            # SERVER_PID=$!
-
-            # # Wait a few seconds to ensure it starts up
-            # sleep 5
-
-            # echo "🔍 Checking server health..."
-            # if curl -s http://localhost:$PORT > /dev/null; then
-            #   echo "✅ Server started successfully. Stopping it now..."
-            #   kill $SERVER_PID
-            # else
-            #   echo "❌ Server failed to respond. Terminating script..."
-            #   kill $SERVER_PID
-            #   exit 1
-            # fi
-
-            # echo "✅ Server passed health check. Continuing with next steps..."
-
-            echo "🧹 Cleaning up old build directory..."
-            rm -rf "${{ inputs.remote_dir }}${{ inputs.app }}"
-
-            echo "🚚 Moving new build to production directory..."
-            mkdir -p "${{ inputs.remote_dir }}${{ inputs.app }}"
-            shopt -s dotglob
-            mv "${{ inputs.remote_dir }}temp/${{ inputs.app }}"/* "${{ inputs.remote_dir }}${{ inputs.app }}/"
-            shopt -u dotglob
-
-            echo "🧽 Removing temporary build folder..."
-            rm -rf "${{ inputs.remote_dir }}temp"
-
-            echo "📂 Changing directory to new app folder..."
-            cd "${{ inputs.remote_dir }}${{ inputs.app }}"
-
-            echo "🔁 Restarting or starting app with PM2..."
-            if ! pm2 describe "${{ inputs.process_name }}" > /dev/null 2>&1; then
-              echo "🚀 Starting ${{ inputs.process_name }} with yarn ${{ inputs.start_command }}..."
-              pm2 start yarn --name="${{ inputs.process_name }}" -- ${{ inputs.start_command }}
-            else
-              echo "♻️ Restarting ${{ inputs.process_name }}..."
-              pm2 restart "${{ inputs.process_name }}"
-            fi
+  
+  jobs:
+    deploy:
+      name: Deploy Node.js App
+      runs-on: ubuntu-latest
+  
+      steps:
+        - name: ⬇️ Checkout Repository
+          uses: actions/checkout@v3
+  
+        - name: 📦 SCP Upload to Remote Host
+          uses: appleboy/scp-action@master
+          with:
+            host: ${{ inputs.server_ip }}
+            username: ${{ inputs.server_user }}
+            key: ${{ secrets.ssh_key }}
+            password: ${{ secrets.ssh_password }}
+            source: "."
+            target: "${{ inputs.remote_dir }}temp/${{ inputs.app }}"
+  
+        - name: 🚀 Build & Replace Server Files
+          uses: appleboy/ssh-action@master
+          with:
+            host: ${{ inputs.server_ip }}
+            username: ${{ inputs.server_user }}
+            key: ${{ secrets.ssh_key }}
+            password: ${{ secrets.ssh_password }}
+            script: |
+              set -e
+              echo "🔍 Checking if .env is required and present..."
+              if [ "${{ inputs.require_env }}" = "true" ] && [ ! -f "${{ inputs.remote_dir }}${{ inputs.app }}/.env" ]; then
+                echo "❌ .env file is required but not found!"
+                exit 1
+              fi
+  
+              echo "📦 Copying .env file to temp directory..."
+              cp "${{ inputs.remote_dir }}${{ inputs.app }}/.env" "${{ inputs.remote_dir }}temp/${{ inputs.app }}/"
+  
+              echo "📥 Installing dependencies..."
+              cd "${{ inputs.remote_dir }}temp/${{ inputs.app }}"
+              yarn install
+  
+              echo "🛠️ Building the project..."
+              yarn build
+  
+              # echo "🚀 Starting the server in the background..."
+              # PORT=9999
+              # yarn start -p $PORT &  # Run in background
+              # SERVER_PID=$!
+  
+              # # Wait a few seconds to ensure it starts up
+              # sleep 5
+  
+              # echo "🔍 Checking server health..."
+              # if curl -s http://localhost:$PORT > /dev/null; then
+              #   echo "✅ Server started successfully. Stopping it now..."
+              #   kill $SERVER_PID
+              # else
+              #   echo "❌ Server failed to respond. Terminating script..."
+              #   kill $SERVER_PID
+              #   exit 1
+              # fi
+  
+              # echo "✅ Server passed health check. Continuing with next steps..."
+  
+              echo "🧹 Cleaning up old build directory..."
+              rm -rf "${{ inputs.remote_dir }}${{ inputs.app }}"
+  
+              echo "🚚 Moving new build to production directory..."
+              mkdir -p "${{ inputs.remote_dir }}${{ inputs.app }}"
+              shopt -s dotglob
+              mv "${{ inputs.remote_dir }}temp/${{ inputs.app }}"/* "${{ inputs.remote_dir }}${{ inputs.app }}/"
+              shopt -u dotglob
+  
+              echo "🧽 Removing temporary build folder..."
+              rm -rf "${{ inputs.remote_dir }}temp"
+  
+              echo "📂 Changing directory to new app folder..."
+              cd "${{ inputs.remote_dir }}${{ inputs.app }}"
+  
+              echo "🔁 Restarting or starting app with PM2..."
+              if ! pm2 describe "${{ inputs.process_name }}" > /dev/null 2>&1; then
+                echo "🚀 Starting ${{ inputs.process_name }} with yarn ${{ inputs.start_command }}..."
+                pm2 start yarn --name="${{ inputs.process_name }}" -- ${{ inputs.start_command }}
+              else
+                echo "♻️ Restarting ${{ inputs.process_name }}..."
+                pm2 restart "${{ inputs.process_name }}"
+              fi
