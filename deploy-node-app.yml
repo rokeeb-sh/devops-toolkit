@@ -25,7 +25,7 @@ on:
         default: 'id_ed25519'
 
       app:
-        description: 'Absolute path to the app directory on the server'
+        description: 'App folder name under the remote_dir'
         required: true
         type: string
 
@@ -51,6 +51,12 @@ on:
         required: false
         type: boolean
         default: true
+
+      remote_dir:
+        description: 'Root path on the server where the app is deployed'
+        required: false
+        type: string
+        default: '/var/www/'
 
     secrets:
       ssh_key:
@@ -78,7 +84,7 @@ jobs:
           key: ${{ secrets.ssh_key }}
           password: ${{ secrets.ssh_password }}
           source: "."
-          target: "/var/www/temp/${{ inputs.app }}"
+          target: "${{ inputs.remote_dir }}temp/${{ inputs.app }}"
 
       - name: 🚀 Build & Replace Server Files
         uses: appleboy/ssh-action@master
@@ -90,16 +96,16 @@ jobs:
           script: |
             set -e
             echo "🔍 Checking if .env is required and present..."
-            if [ "${{ inputs.require_env }}" = "true" ] && [ ! -f "/var/www/${{ inputs.app }}/.env" ]; then
+            if [ "${{ inputs.require_env }}" = "true" ] && [ ! -f "${{ inputs.remote_dir }}${{ inputs.app }}/.env" ]; then
               echo "❌ .env file is required but not found!"
               exit 1
             fi
 
             echo "📦 Copying .env file to temp directory..."
-            cp /var/www/${{ inputs.app }}/.env /var/www/temp/${{ inputs.app }}/
+            cp "${{ inputs.remote_dir }}${{ inputs.app }}/.env" "${{ inputs.remote_dir }}temp/${{ inputs.app }}/"
 
             echo "📥 Installing dependencies..."
-            cd /var/www/temp/${{ inputs.app }}
+            cd "${{ inputs.remote_dir }}temp/${{ inputs.app }}"
             yarn install
 
             echo "🛠️ Building the project..."
@@ -126,19 +132,19 @@ jobs:
             # echo "✅ Server passed health check. Continuing with next steps..."
 
             echo "🧹 Cleaning up old build directory..."
-            rm -rf /var/www/${{ inputs.app }}
+            rm -rf "${{ inputs.remote_dir }}${{ inputs.app }}"
 
             echo "🚚 Moving new build to production directory..."
-            mkdir /var/www/${{ inputs.app }}
+            mkdir -p "${{ inputs.remote_dir }}${{ inputs.app }}"
             shopt -s dotglob
-            mv /var/www/temp/${{ inputs.app }}/* /var/www/${{ inputs.app }}
+            mv "${{ inputs.remote_dir }}temp/${{ inputs.app }}"/* "${{ inputs.remote_dir }}${{ inputs.app }}/"
             shopt -u dotglob
 
             echo "🧽 Removing temporary build folder..."
-            rm -rf /var/www/temp
+            rm -rf "${{ inputs.remote_dir }}temp"
 
             echo "📂 Changing directory to new app folder..."
-            cd /var/www/${{ inputs.app }}
+            cd "${{ inputs.remote_dir }}${{ inputs.app }}"
 
             echo "🔁 Restarting or starting app with PM2..."
             if ! pm2 describe "${{ inputs.process_name }}" > /dev/null 2>&1; then
