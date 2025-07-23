@@ -60,12 +60,10 @@ on:
 
       secrets:
         ssh_key:
-          description: 'Private SSH key with access to the server'
           required: false
-  
-      ssh_password:
-        description: 'Password for SSH login (used if no ssh_key is provided)'
-        required: false
+          
+        ssh_password:
+          required: false
   
   jobs:
     deploy:
