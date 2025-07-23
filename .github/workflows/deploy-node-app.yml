@@ -58,14 +58,16 @@ on:
         type: string
         default: '/var/www/'
 
-      secrets:
-        ssh_key:
-          required: false
-          
-        ssh_password:
-          required: false
+    secrets:
+      ssh_key:
+        description: 'Private SSH key with access to the server'
+        required: false
+
+      ssh_password:
+        description: 'Password for SSH login (used if no ssh_key is provided)'
+        required: false
   
-  jobs:
+jobs:
     deploy:
       name: Deploy Node.js App
       runs-on: ubuntu-latest
