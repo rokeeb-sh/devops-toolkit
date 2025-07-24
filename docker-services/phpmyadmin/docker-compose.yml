@@ -1,0 +1,26 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql  
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_ARBITRARY: 1
+      UPLOAD_LIMIT: 100M
+    volumes:
+      - ./config.php:/etc/phpmyadmin/config.inc.php
+      - ./themes/blueberry:/var/www/html/themes/blueberry
+volumes:
+  mysql_data:   
