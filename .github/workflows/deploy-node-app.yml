@@ -31,7 +31,7 @@ on:
 
       process_name:
         description: 'PM2 process name used to identify/restart the app'
-        required: true
+        required: false
         type: string
 
       script:
