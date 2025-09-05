@@ -1,0 +1,83 @@
+name: React Application
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Branch to deploy from'
+        required: true
+        type: string
+
+      server_ip:
+        description: 'Public IP address of the deployment server'
+        required: true
+        type: string
+
+      server_user:
+        description: 'SSH user for the remote server (e.g., ubuntu)'
+        required: true
+        type: string
+
+      app_name:
+        description: 'App folder name under the remote_dir'
+        required: true
+        type: string
+
+      build_dir:
+        description: 'Path to the build directory'
+        required: false
+        type: string
+        default: 'build/*'
+
+      remote_dir:
+        description: 'Root path on the server where the app is deployed'
+        required: false
+        type: string
+        default: '/var/www/'
+
+      script:
+        description: 'Optional post-deployment shell commands'
+        required: false
+        type: string
+        default: ''
+
+    secrets:
+      ssh_key:
+        description: 'Private SSH key with access to the server'
+        required: false
+
+      ssh_password:
+        description: 'Password for SSH login (used if no ssh_key is provided)'
+        required: false
+  
+jobs:
+    deploy:
+      name: Deploy React App
+      runs-on: ubuntu-latest
+  
+      steps:
+        - name: ⬇️ Checkout Repository
+          uses: actions/checkout@v3
+
+        - name: 📥 Install dependencies
+          run: yarn install --frozen-lockfile
+  
+        - name: 📦 SCP Upload to Remote Host
+          uses: appleboy/scp-action@master
+          with:
+            host: ${{ inputs.server_ip }}
+            username: ${{ inputs.server_user }}
+            key: ${{ secrets.ssh_key }}
+            password: ${{ secrets.ssh_password }}
+            source: ${{ inputs.build_dir }}
+            target: "${{ inputs.remote_dir }}temp/${{ inputs.app_name }}"
+  
+        - name: 🚀 Run Post-Deployment Script
+          if: ${{ inputs.script != '' }}
+          uses: appleboy/ssh-action@master
+          with:
+            host: ${{ inputs.server_ip }}
+            username: ${{ inputs.server_user }}
+            key: ${{ secrets.ssh_key }}
+            password: ${{ secrets.ssh_password }}
+            script: ${{ inputs.script }}
