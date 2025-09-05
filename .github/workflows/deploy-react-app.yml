@@ -97,13 +97,11 @@ jobs:
             script: |
               if [ ! -f "$APP_DIR/.htaccess" ]; then
                 echo "Creating .htaccess..."
-                cat <<EOL > "$APP_DIR/.htaccess"
-                  RewriteEngine On
-                  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
-                  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
-                  RewriteRule ^ - [L]
-                  RewriteRule ^ index.html [QSA,L]
-                EOL
+                echo "RewriteEngine On" > "$APP_DIR/.htaccess"
+                echo "RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]" >> "$APP_DIR/.htaccess"
+                echo "RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d" >> "$APP_DIR/.htaccess"
+                echo "RewriteRule ^ - [L]" >> "$APP_DIR/.htaccess"
+                echo "RewriteRule ^ index.html [QSA,L]" >> "$APP_DIR/.htaccess"
               fi
 
         - name: 🚀 Run Post-Deployment Script
