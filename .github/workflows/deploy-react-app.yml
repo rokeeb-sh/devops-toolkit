@@ -95,13 +95,13 @@ jobs:
             key: ${{ secrets.ssh_key }}
             password: ${{ secrets.ssh_password }}
             script: |
-              if [ ! -f "$APP_DIR/.htaccess" ]; then
+              if [ ! -f "${{ env.APP_DIR }}/.htaccess" ]; then
                 echo "Creating .htaccess..."
-                echo "RewriteEngine On" > "$APP_DIR/.htaccess"
-                echo "RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]" >> "$APP_DIR/.htaccess"
-                echo "RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d" >> "$APP_DIR/.htaccess"
-                echo "RewriteRule ^ - [L]" >> "$APP_DIR/.htaccess"
-                echo "RewriteRule ^ index.html [QSA,L]" >> "$APP_DIR/.htaccess"
+                echo "RewriteEngine On" > "${{ env.APP_DIR }}/.htaccess"
+                echo "RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]" >> "${{ env.APP_DIR }}/.htaccess"
+                echo "RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d" >> "${{ env.APP_DIR }}/.htaccess"
+                echo "RewriteRule ^ - [L]" >> "${{ env.APP_DIR }}/.htaccess"
+                echo "RewriteRule ^ index.html [QSA,L]" >> "${{ env.APP_DIR }}/.htaccess"
               fi
 
         - name: 🚀 Run Post-Deployment Script
