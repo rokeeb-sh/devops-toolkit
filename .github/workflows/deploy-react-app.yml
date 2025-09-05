@@ -61,7 +61,7 @@ jobs:
       name: Deploy React App
       runs-on: ubuntu-latest
       env: 
-        APP_DIR: "${{ inputs.remote_dir }}${{ inputs.app_name }}"
+        APP_DIR: "${{ inputs.remote_dir }}/${{ inputs.app_name }}"
 
       steps:
         - name: ⬇️ Checkout Repository
@@ -85,7 +85,7 @@ jobs:
             key: ${{ secrets.ssh_key }}
             password: ${{ secrets.ssh_password }}
             source: ${{ inputs.build_dir }}
-            target: "${{ inputs.remote_dir }}temp/${{ inputs.app_name }}"
+            target: "${{ env.APP_DIR }}"
 
         - name: ⚠️ Check .htaccess Exists
           uses: appleboy/ssh-action@master
