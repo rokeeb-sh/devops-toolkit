@@ -36,7 +36,7 @@ on:
         default: '/var/www/'
 
       pre_script:
-        description: 'Commands to prepare .env before build'
+        description: 'Optional pre-deployment shell commands'
         required: false
         type: string
         default: ''
