@@ -74,6 +74,12 @@ jobs:
 
         - name: 🛠️ Build Application
           run: yarn build
+
+        - name: ⚠️ Check .htaccess and Copy to Build
+          run: |
+            [ -f .htaccess ] || { echo "❌ .htaccess not found in repo. Aborting."; exit 1; }
+            cp .htaccess ${{ inputs.build_dir%/* }}/
+            echo "✅ .htaccess exists and copied to build dir"
   
         - name: 📦 SCP Upload to Remote Host
           uses: appleboy/scp-action@master
