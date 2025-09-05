@@ -31,7 +31,7 @@ on:
 
       process_name:
         description: 'PM2 process name used to identify/restart the app'
-        required: false
+        required: true
         type: string
 
       script:
@@ -146,23 +146,11 @@ jobs:
               echo "📂 Changing directory to new app folder..."
               cd "${{ inputs.remote_dir }}${{ inputs.app }}"
   
-              if [ -n "${{ inputs.process_name }}" ] && [ -n "${{ inputs.start_command }}" ]; then
-                echo "📂 Changing directory to new app folder..."
-                cd "${{ inputs.remote_dir }}${{ inputs.app }}"
-  
-                echo "🔁 Restarting or starting app with PM2..."
-                if ! pm2 describe "${{ inputs.process_name }}" > /dev/null 2>&1; then
-                  echo "🚀 Starting ${{ inputs.process_name }} with yarn ${{ inputs.start_command }}..."
-                  pm2 start yarn --name="${{ inputs.process_name }}" -- ${{ inputs.start_command }}
-                else
-                  echo "♻️ Restarting ${{ inputs.process_name }}..."
-                  pm2 restart "${{ inputs.process_name }}"
-                fi
+              echo "🔁 Restarting or starting app with PM2..."
+              if ! pm2 describe "${{ inputs.process_name }}" > /dev/null 2>&1; then
+                echo "🚀 Starting ${{ inputs.process_name }} with yarn ${{ inputs.start_command }}..."
+                pm2 start yarn --name="${{ inputs.process_name }}" -- ${{ inputs.start_command }}
               else
-                echo "ℹ️ process_name or start_command not provided; skipping PM2 restart (React build only)."
-              fi
-  
-              if [ -n "${{ inputs.script }}" ]; then
-                echo "💻 Running post-deployment script..."
-                eval "${{ inputs.script }}"
+                echo "♻️ Restarting ${{ inputs.process_name }}..."
+                pm2 restart "${{ inputs.process_name }}"
               fi
