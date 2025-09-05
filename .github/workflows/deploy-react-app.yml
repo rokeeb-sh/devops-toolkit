@@ -35,7 +35,13 @@ on:
         type: string
         default: '/var/www/'
 
-      script:
+      pre_script:
+        description: 'Commands to prepare .env before build'
+        required: false
+        type: string
+        default: ''
+
+      post_script:
         description: 'Optional post-deployment shell commands'
         required: false
         type: string
@@ -59,6 +65,10 @@ jobs:
         - name: ⬇️ Checkout Repository
           uses: actions/checkout@v3
 
+        - name: 🚀 Run Pre-Deployment Script
+          if: ${{ inputs.pre_script != '' }}
+          run: ${{ inputs.pre_script }}
+
         - name: 📥 Install dependencies
           run: yarn install --frozen-lockfile
   
@@ -71,13 +81,13 @@ jobs:
             password: ${{ secrets.ssh_password }}
             source: ${{ inputs.build_dir }}
             target: "${{ inputs.remote_dir }}temp/${{ inputs.app_name }}"
-  
+
         - name: 🚀 Run Post-Deployment Script
-          if: ${{ inputs.script != '' }}
+          if: ${{ inputs.post_script != '' }}
           uses: appleboy/ssh-action@master
           with:
             host: ${{ inputs.server_ip }}
             username: ${{ inputs.server_user }}
             key: ${{ secrets.ssh_key }}
             password: ${{ secrets.ssh_password }}
-            script: ${{ inputs.script }}
+            script: ${{ inputs.post_script }}
