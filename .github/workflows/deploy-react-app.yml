@@ -1,4 +1,4 @@
-name: React Application
+\name: React Application
 
 on:
   workflow_call:
@@ -60,8 +60,6 @@ jobs:
     deploy:
       name: Deploy React App
       runs-on: ubuntu-latest
-      env: 
-        APP_DIR: "${{ inputs.remote_dir }}/${{ inputs.app_name }}"
 
       steps:
         - name: ⬇️ Checkout Repository
@@ -96,16 +94,16 @@ jobs:
             password: ${{ secrets.ssh_password }}
             script: |
               echo "🧹 Cleaning up old app directory..."
-              rm -rf "$APP_DIR"/*
+              rm -rf "${{ inputs.remote_dir }}/${{ inputs.app_name }}"
 
               echo "🚚 Moving new build files to app directory..."
-              mv "${{ inputs.remote_dir }}/temp/${{ inputs.app_name }}"/* "$APP_DIR"
+              mv "${{ inputs.remote_dir }}/temp/${{ inputs.app_name }}"/* "${{ inputs.remote_dir }}/${{ inputs.app_name }}"
 
               echo "🧽 Removing temporary build folder..."
               rm -rf "${{ inputs.remote_dir }}/temp"
 
               echo "✅ Creating .htaccess in app directory..."
-              cat <<-EOL > "$APP_DIR/.htaccess"
+              cat <<-EOL > "${{ inputs.remote_dir }}/${{ inputs.app_name }}/.htaccess"
                 RewriteEngine On
                 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
                 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
