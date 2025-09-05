@@ -33,7 +33,7 @@ on:
         description: 'Root path on the server where the app is deployed'
         required: false
         type: string
-        default: '/var/www/'
+        default: '/var/www'
 
       pre_script:
         description: 'Optional pre-deployment shell commands'
@@ -85,9 +85,9 @@ jobs:
             key: ${{ secrets.ssh_key }}
             password: ${{ secrets.ssh_password }}
             source: ${{ inputs.build_dir }}
-            target: "${{ env.APP_DIR }}"
+            target: "${{ inputs.remote_dir }}temp/${{ inputs.app_name }}"
 
-        - name: ⚠️ Check .htaccess Exists
+        - name: Post-Deployment
           uses: appleboy/ssh-action@master
           with:
             host: ${{ inputs.server_ip }}
@@ -95,14 +95,23 @@ jobs:
             key: ${{ secrets.ssh_key }}
             password: ${{ secrets.ssh_password }}
             script: |
-              if [ ! -f "${{ env.APP_DIR }}/.htaccess" ]; then
-                echo "Creating .htaccess..."
-                echo "RewriteEngine On" > "${{ env.APP_DIR }}/.htaccess"
-                echo "RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]" >> "${{ env.APP_DIR }}/.htaccess"
-                echo "RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d" >> "${{ env.APP_DIR }}/.htaccess"
-                echo "RewriteRule ^ - [L]" >> "${{ env.APP_DIR }}/.htaccess"
-                echo "RewriteRule ^ index.html [QSA,L]" >> "${{ env.APP_DIR }}/.htaccess"
-              fi
+              echo "🧹 Cleaning up old app directory..."
+              rm -rf "$APP_DIR"/*
+
+              echo "🚚 Moving new build files to app directory..."
+              mv "${{ inputs.remote_dir }}/temp/${{ inputs.app_name }}"/* "$APP_DIR"
+
+              echo "🧽 Removing temporary build folder..."
+              rm -rf "${{ inputs.remote_dir }}/temp"
+
+              echo "✅ Creating .htaccess in app directory..."
+              cat <<-EOL > "$APP_DIR/.htaccess"
+                RewriteEngine On
+                RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
+                RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
+                RewriteRule ^ - [L]
+                RewriteRule ^ index.html [QSA,L]
+              EOL
 
         - name: 🚀 Run Post-Deployment Script
           if: ${{ inputs.post_script != '' }}
