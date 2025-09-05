@@ -1,4 +1,4 @@
-\name: React Application
+name: React Application
 
 on:
   workflow_call:
