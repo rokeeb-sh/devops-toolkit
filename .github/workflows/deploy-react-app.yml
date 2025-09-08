@@ -83,7 +83,7 @@ jobs:
             key: ${{ secrets.ssh_key }}
             password: ${{ secrets.ssh_password }}
             source: ${{ inputs.build_dir }}
-            target: "${{ inputs.remote_dir }}temp/${{ inputs.app_name }}"
+            target: "${{ inputs.remote_dir }}/temp/${{ inputs.app_name }}"
 
         - name: Post-Deployment
           uses: appleboy/ssh-action@master
