@@ -65,12 +65,12 @@ jobs:
         - name: ⬇️ Checkout Repository
           uses: actions/checkout@v3
 
+        - name: 📥 Install Dependencies
+          run: yarn install --frozen-lockfile
+
         - name: 🚀 Run Pre-Deployment Script
           if: ${{ inputs.pre_script != '' }}
           run: ${{ inputs.pre_script }}
-
-        - name: 📥 Install Dependencies
-          run: yarn install --frozen-lockfile
 
         - name: 🛠️ Build Application
           run: yarn build
