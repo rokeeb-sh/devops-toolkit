@@ -11,7 +11,7 @@ echo "Apache installed successfully."
 
 
 # Install Node.js and npm
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt update && sudo apt install nodejs -y
 echo "Node.js and npm installed successfully."
 
