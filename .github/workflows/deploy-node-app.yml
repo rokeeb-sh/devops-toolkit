@@ -106,10 +106,10 @@ jobs:
   
               echo "📥 Installing dependencies..."
               cd "${{ inputs.remote_dir }}temp/${{ inputs.app }}"
-              yarn install
+              npm install
   
               echo "🛠️ Building the project..."
-              yarn build
+              npm run build
   
               # echo "🚀 Starting the server in the background..."
               # PORT=9999
