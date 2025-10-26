@@ -11,7 +11,7 @@ echo "Apache installed successfully."
 
 
 # Install Node.js and npm
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_23.x | sudo -E bash -
 sudo apt update && sudo apt install nodejs -y
 echo "Node.js and npm installed successfully."
 
@@ -26,6 +26,7 @@ sudo apt install -y php php-cli php-mysql php-mbstring unzip
 sudo php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 sudo php -r "unlink('composer-setup.php');"
+sudo apt install php-xml php-curl -y
 echo "PHP and Composer installed successfully."
 
 
