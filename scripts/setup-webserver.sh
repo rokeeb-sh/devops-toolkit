@@ -26,7 +26,7 @@ sudo apt install -y php php-cli php-mysql php-mbstring unzip
 sudo php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 sudo php -r "unlink('composer-setup.php');"
-sudo apt install php-xml php-curl -y
+sudo apt install php-xml php-curl php-zip php-gd -y
 echo "PHP and Composer installed successfully."
 
 
